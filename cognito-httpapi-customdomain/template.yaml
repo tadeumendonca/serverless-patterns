@@ -33,7 +33,7 @@ Resources:
     Properties:
       Location: ./auth.yaml
       Parameters:
-        ClientDomain: !Join ["", ["https://", !Ref DomainName]]
+        ClientDomain: !Sub "https://${SubDomainName}.${DomainName}/login"
         Postman: !Ref TestWithPostman
 
   # Creates an API Gateway HTTP API endpoint with JWT authorization
@@ -52,7 +52,7 @@ Resources:
         AllowMethods:
           - GET
         AllowOrigins:
-          - !Join ["", ["https://", !Ref DomainName]]
+          - !Sub "https://${SubDomainName}.${DomainName}"
       Auth:
         Authorizers:
           OAuth2Authorizer:
