@@ -13,7 +13,7 @@ Parameters:
     AllowedValues:
       - "true"
       - "false"
-  AppDomainName:
+  AppSubDomainName:
     Description: Provide your application sub-domain under your organization root domain.
     Type: String
   DomainName:
@@ -34,7 +34,7 @@ Resources:
       Location: ./auth.yaml
       Parameters:
         CertificateArn: !Ref CertificateArn
-        AppDomainName: !Sub "https://${AppDomainName}.${DomainName}"
+        AppSubDomainName: !Sub "https://${AppSubDomainName}.${DomainName}"
         AuthDomainName: !Sub "https://auth.${DomainName}"
         Postman: !Ref TestWithPostman
 
@@ -46,7 +46,7 @@ Resources:
       DisableExecuteApiEndpoint: true
       Domain:
         CertificateArn: !Ref CertificateArn
-        DomainName: !Join [ ".", [ !Ref AppDomainName, !Ref DomainName ] ]
+        DomainName: !Join [ ".", [ !Ref AppSubDomainName, !Ref DomainName ] ]
         EndpointConfiguration: REGIONAL
         Route53:
           HostedZoneId: !Ref HostedZoneId
@@ -54,7 +54,7 @@ Resources:
         AllowMethods:
           - GET
         AllowOrigins:
-          - !Sub "https://${AppDomainName}.${DomainName}"
+          - !Sub "https://${AppSubDomainName}.${DomainName}"
       Auth:
         Authorizers:
           OAuth2Authorizer:
@@ -76,7 +76,7 @@ Resources:
   #       Variables:
   #         ClientId: !GetAtt AuthStack.Outputs.UserPoolClientId
   #         AuthUrl: !GetAtt AuthStack.Outputs.AuthUrl
-  #         RedirectUrl: !Sub "https://${AppDomainName}.${DomainName}/redirect_uri"
+  #         RedirectUrl: !Sub "https://${AppSubDomainName}.${DomainName}/redirect_uri"
   #     Events:
   #       AppApi:
   #         Type: HttpApi
@@ -95,7 +95,7 @@ Resources:
   #     Environment:
   #       Variables:
   #         ClientId: !GetAtt AuthStack.Outputs.UserPoolClientId
-  #         RedirectUrl: !Sub "https://${AppDomainName}.${DomainName}/redirect_uri"
+  #         RedirectUrl: !Sub "https://${AppSubDomainName}.${DomainName}/redirect_uri"
   #         TokenUrl: !GetAtt AuthStack.Outputs.TokenUrl
   #     Events:
   #       AppApi:
@@ -136,13 +136,13 @@ Resources:
 Outputs:
   UserEndpoint:
     Description: API Endpoint
-    Value: !Sub "https://${AppDomainName}.${DomainName}/user"
+    Value: !Sub "https://${AppSubDomainName}.${DomainName}/user"
   # LoginEndpoint:
   #   Description: Login Endpoint
-  #   Value: !Sub "https://${AppDomainName}.${DomainName}/login"
+  #   Value: !Sub "https://${AppSubDomainName}.${DomainName}/login"
   # LogoutEndpoint:
   #   Description: Logout Endpoint
-  #   Value: !Sub "https://${AppDomainName}.${DomainName}/logout"
+  #   Value: !Sub "https://${AppSubDomainName}.${DomainName}/logout"
   AuthEndpoint:
     Description: Url used to authenticate
     Value: !Sub "https://auth.${DomainName}"
