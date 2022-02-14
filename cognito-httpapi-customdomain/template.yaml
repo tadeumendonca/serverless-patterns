@@ -84,6 +84,10 @@ Resources:
       CodeUri: src/login/
       Handler: app.handler
       Runtime: nodejs14.x
+      Environment:
+        Variables:
+          ClientId: !GetAtt AuthStack.Outputs.UserPoolClientId
+          AuthUrl: !GetAtt AuthStack.Outputs.AuthUrl
       Events:
         AppApi:
           Type: HttpApi
