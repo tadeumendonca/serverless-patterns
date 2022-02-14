@@ -6,9 +6,15 @@ Transform: AWS::Serverless-2016-10-31
 Description: Cognito user pool with hosted domain
 
 Parameters:
-  DomainName:
+  CertificateArn:
+    Description: Provide your managed certficate ARN from your domain.
     Type: String
-    Description: Domain allowed to use this UserPool
+  AuthDomainName:
+    Type: String
+    Description: Auth subdomain of your user pool
+  AppDomainName:
+    Type: String
+    Description: Client/App subdomain of your user pool
   Postman:
     Type: String
     
@@ -36,18 +42,18 @@ Resources:
 
   # Create an application for authentication
   UserPoolClient:
-    Type: AWS::Cognito::UserPoolClient 
+    Type: AWS::Cognito::UserPoolClient
     Properties: 
       UserPoolId: !Ref UserPool
       GenerateSecret: false
       SupportedIdentityProviders:
         - COGNITO
-      DefaultRedirectURI: !Sub "${DomainName}/redirect_uri"
+      DefaultRedirectURI: !Sub "${AppDomainName}/redirect_uri"
       CallbackURLs:
-        - !Sub "${DomainName}/redirect_uri"
+        - !Sub "${AppDomainName}/redirect_uri"
         - !If [UsePostman, https://oauth.pstmn.io/v1/callback, !Ref AWS::NoValue]
       LogoutURLs:
-        - !Sub "${DomainName}/logout"
+        - !Sub "${AppDomainName}/logout"
         - !If [UsePostman, https://oauth.pstmn.io/v1/callback, !Ref AWS::NoValue]
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows:
@@ -62,7 +68,9 @@ Resources:
   UserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties: 
-      Domain: !Sub myauth${AWS::AccountId}
+      CustomDomainConfig:
+        CertificateArn: !Ref CertificateArn
+      Domain: !Ref AuthDomainName
       UserPoolId: !Ref UserPool
     
 Outputs:
@@ -77,6 +85,10 @@ Outputs:
     AuthUrl:
       Description: "URL used for authentication"
       Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/login
+
+    TokenUrl:
+      Description: "URL used for authentication"
+      Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/oauth2/token
       
     Issuer:
       Description: "Url used for issuer on HTTP API JWT tokens"

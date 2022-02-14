@@ -33,7 +33,9 @@ Resources:
     Properties:
       Location: ./auth.yaml
       Parameters:
-        DomainName: !Sub "https://${SubDomainName}.${DomainName}"
+        CertificateArn: !Ref CertificateArn
+        AppDomainName: !Sub "https://${SubDomainName}.${DomainName}"
+        AuthDomainName: !Sub "https://auth.${DomainName}"
         Postman: !Ref TestWithPostman
 
   # Creates an API Gateway HTTP API endpoint with JWT authorization
@@ -64,44 +66,46 @@ Resources:
               audience:
                 - !GetAtt AuthStack.Outputs.UserPoolClientId
         DefaultAuthorizer: OAuth2Authorizer
-  LoginFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/login/
-      Handler: app.handler
-      Runtime: nodejs14.x
-      Environment:
-        Variables:
-          ClientId: !GetAtt AuthStack.Outputs.UserPoolClientId
-          AuthUrl: !GetAtt AuthStack.Outputs.AuthUrl
-          RedirectUrl: !Sub "https://${SubDomainName}.${DomainName}/redirect_uri"
-      Events:
-        AppApi:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref AppApi
-            Auth:
-              Authorizer: NONE
-            Path: /login
-            Method: get
-  RedirectFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/redirect/
-      Handler: app.handler
-      Runtime: nodejs14.x
-      Environment:
-        Variables:
-          RedirectUrl: !Sub "https://${SubDomainName}.${DomainName}/user"
-      Events:
-        AppApi:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref AppApi
-            Auth:
-              Authorizer: NONE
-            Path: /redirect_uri
-            Method: get
+  # LoginFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: src/login/
+  #     Handler: app.handler
+  #     Runtime: nodejs14.x
+  #     Environment:
+  #       Variables:
+  #         ClientId: !GetAtt AuthStack.Outputs.UserPoolClientId
+  #         AuthUrl: !GetAtt AuthStack.Outputs.AuthUrl
+  #         RedirectUrl: !Sub "https://${SubDomainName}.${DomainName}/redirect_uri"
+  #     Events:
+  #       AppApi:
+  #         Type: HttpApi
+  #         Properties:
+  #           ApiId: !Ref AppApi
+  #           Auth:
+  #             Authorizer: NONE
+  #           Path: /login
+  #           Method: get
+  # RedirectFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: src/redirect/
+  #     Handler: app.handler
+  #     Runtime: nodejs14.x
+  #     Environment:
+  #       Variables:
+  #         ClientId: !GetAtt AuthStack.Outputs.UserPoolClientId
+  #         RedirectUrl: !Sub "https://${SubDomainName}.${DomainName}/redirect_uri"
+  #         TokenUrl: !GetAtt AuthStack.Outputs.TokenUrl
+  #     Events:
+  #       AppApi:
+  #         Type: HttpApi
+  #         Properties:
+  #           ApiId: !Ref AppApi
+  #           Auth:
+  #             Authorizer: NONE
+  #           Path: /redirect_uri
+  #           Method: get
   UserFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -115,33 +119,33 @@ Resources:
             ApiId: !Ref AppApi
             Path: /user
             Method: get
-  LogoutFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/logout/
-      Handler: app.handler
-      Runtime: nodejs14.x
-      Events:
-        AppApi:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref AppApi
-            Path: /logout
-            Method: get
+  # LogoutFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: src/logout/
+  #     Handler: app.handler
+  #     Runtime: nodejs14.x
+  #     Events:
+  #       AppApi:
+  #         Type: HttpApi
+  #         Properties:
+  #           ApiId: !Ref AppApi
+  #           Path: /logout
+  #           Method: get
 
 Outputs:
   UserEndpoint:
     Description: API Endpoint
     Value: !Sub "https://${SubDomainName}.${DomainName}/user"
-  LoginEndpoint:
-    Description: Login Endpoint
-    Value: !Sub "https://${SubDomainName}.${DomainName}/login"
-  LogoutEndpoint:
-    Description: Logout Endpoint
-    Value: !Sub "https://${SubDomainName}.${DomainName}/logout"
-  CognitoUserPoolUrl:
+  # LoginEndpoint:
+  #   Description: Login Endpoint
+  #   Value: !Sub "https://${SubDomainName}.${DomainName}/login"
+  # LogoutEndpoint:
+  #   Description: Logout Endpoint
+  #   Value: !Sub "https://${SubDomainName}.${DomainName}/logout"
+  AuthEndpoint:
     Description: Url used to authenticate
-    Value: !GetAtt AuthStack.Outputs.AuthUrl
+    Value: !Sub "https://auth.${DomainName}"
   ClientId:
     Description: Application client ID
     Value: !GetAtt AuthStack.Outputs.UserPoolClientId
