@@ -6,7 +6,7 @@ Transform: AWS::Serverless-2016-10-31
 Description: Cognito user pool with hosted domain
 
 Parameters:
-  ClientDomain:
+  DomainName:
     Type: String
     Description: Domain allowed to use this UserPool
   Postman:
@@ -42,11 +42,12 @@ Resources:
       GenerateSecret: false
       SupportedIdentityProviders:
         - COGNITO
+      DefaultRedirectURI: !Sub "${DomainName}/redirect_uri"
       CallbackURLs:
-        - !Ref ClientDomain
+        - !Sub "${DomainName}/redirect_uri"
         - !If [UsePostman, https://oauth.pstmn.io/v1/callback, !Ref AWS::NoValue]
       LogoutURLs:
-        - !Ref ClientDomain
+        - !Sub "${DomainName}/logout"
         - !If [UsePostman, https://oauth.pstmn.io/v1/callback, !Ref AWS::NoValue]
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows:
