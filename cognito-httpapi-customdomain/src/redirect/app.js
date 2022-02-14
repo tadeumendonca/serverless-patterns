@@ -3,12 +3,11 @@
 
 exports.handler = async (event) => {
     let redirectUrl = process.env.RedirectUrl;
-    // const response = {
-    //     statusCode: 302,
-    //     headers: {
-    //         Location: redirectUrl
-    //     }
-    // };
-    // return response;
-    return event;
+    const response = {
+        statusCode: 302,
+        headers: {
+            Location: redirectUrl
+        }
+    };
+    return response;
 };

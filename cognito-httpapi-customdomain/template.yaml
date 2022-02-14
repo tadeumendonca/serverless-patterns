@@ -92,7 +92,7 @@ Resources:
       Runtime: nodejs14.x
       Environment:
         Variables:
-          RedirectUrl: !Sub "https://${SubDomainName}.${DomainName}/redirect_uri"
+          RedirectUrl: !Sub "https://${SubDomainName}.${DomainName}/user"
       Events:
         AppApi:
           Type: HttpApi
