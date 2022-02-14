@@ -6,10 +6,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: Cognito to API Gateway HTTP API (JWT)
     
 Parameters:
-  Client:
-    Description: Client website for authentication redirects and cors (must start with https://)
-    Type: String
-    Default: https://myapp.com
   TestWithPostman:
     Description: Do you need to test with Postman? (Not recommended for production)
     Type: String
@@ -17,6 +13,18 @@ Parameters:
     AllowedValues:
       - "true"
       - "false"
+  SubDomainName:
+    Description: Provide your application sub-domain under your organization root domain.
+    Type: String
+  DomainName:
+    Description: Provide your organization root domain.
+    Type: String
+  CertificateArn:
+    Description: Provide your managed certficate ARN on AWS Certificate Manager.
+    Type: String
+  HostedZoneId:
+    Description: Provide your Route53 domain hosted zone id.
+    Type: String
 
 Resources:
   # Creates a nested stack with the required Cognito requirements
@@ -25,7 +33,7 @@ Resources:
     Properties:
       Location: ./auth.yaml
       Parameters:
-        ClientDomain: !Ref Client
+        ClientDomain: !Join ["", ["https://", !Ref DomainName]]
         Postman: !Ref TestWithPostman
 
   # Creates an API Gateway HTTP API endpoint with JWT authorization
@@ -33,11 +41,18 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       Description: Cognito to HTTP API demo
+      DisableExecuteApiEndpoint: true
+      Domain:
+        CertificateArn: !Ref CertificateArn
+        DomainName: !Join [ ".", [ !Ref SubDomainName, !Ref DomainName ] ]
+        EndpointConfiguration: REGIONAL
+        Route53:
+          HostedZoneId: !Ref HostedZoneId
       CorsConfiguration:
         AllowMethods:
           - GET
         AllowOrigins:
-          - !Ref Client
+          - !Join ["", ["https://", !Ref DomainName]]
       Auth:
         Authorizers:
           OAuth2Authorizer:
@@ -65,9 +80,9 @@ Resources:
             Method: get
 
 Outputs:
-  AppApiEndpoint:
+  ApiEndpoint:
     Description: API Endpoint
-    Value: !Sub "https://${AppApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Value: !Sub "https://${SubDomainName}.${DomainName}"
   AuthUrl:
     Description: Url used to authenticate
     Value: !GetAtt AuthStack.Outputs.AuthUrl
