@@ -64,20 +64,6 @@ Resources:
               audience:
                 - !GetAtt AuthStack.Outputs.UserPoolClientId
         DefaultAuthorizer: OAuth2Authorizer
-                
-  ApiFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/api/
-      Handler: app.handler
-      Runtime: nodejs14.x
-      Events:
-        AppApi:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref AppApi
-            Path: /api
-            Method: get
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -88,6 +74,7 @@ Resources:
         Variables:
           ClientId: !GetAtt AuthStack.Outputs.UserPoolClientId
           AuthUrl: !GetAtt AuthStack.Outputs.AuthUrl
+          RedirectUrl: !Sub "https://${SubDomainName}.${DomainName}/redirect_uri"
       Events:
         AppApi:
           Type: HttpApi
@@ -97,6 +84,50 @@ Resources:
               Authorizer: NONE
             Path: /login
             Method: get
+  RedirectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/redirect/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          RedirectUrl: !Sub "https://${SubDomainName}.${DomainName}/redirect_uri"
+      Events:
+        AppApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AppApi
+            Auth:
+              Authorizer: NONE
+            Path: /redirect_uri
+            Method: get
+  UserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/user/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Events:
+        AppApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AppApi
+            Path: /user
+            Method: get
+  LogoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/logout/
+      Handler: app.handler
+      Runtime: nodejs14.x
+      Events:
+        AppApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AppApi
+            Path: /logout
+            Method: get
 
 Outputs:
   ApiEndpoint:
@@ -105,6 +136,9 @@ Outputs:
   LoginEndpoint:
     Description: Login Endpoint
     Value: !Sub "https://${SubDomainName}.${DomainName}/login"
+  LogoutEndpoint:
+    Description: Logout Endpoint
+    Value: !Sub "https://${SubDomainName}.${DomainName}/logout"
   AuthUrl:
     Description: Url used to authenticate
     Value: !GetAtt AuthStack.Outputs.AuthUrl
