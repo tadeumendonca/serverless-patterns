@@ -34,7 +34,7 @@ Resources:
       Location: ./auth.yaml
       Parameters:
         CertificateArn: !Ref CertificateArn
-        AppSubDomainName: !Sub "https://${AppSubDomainName}.${DomainName}"
+        AppDomainName: !Sub "https://${AppSubDomainName}.${DomainName}"
         AuthDomainName: !Sub "https://auth.${DomainName}"
         Postman: !Ref TestWithPostman
 
