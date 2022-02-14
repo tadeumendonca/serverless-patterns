@@ -2,5 +2,5 @@
 // SPDX-License-Identifier: MIT-0
 
 exports.handler = function (event, context) {
-	context.succeed('hello world');
+	context.succeed(JSON.stringify(event));
 };
