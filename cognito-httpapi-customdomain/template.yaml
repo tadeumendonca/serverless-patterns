@@ -139,7 +139,7 @@ Outputs:
   LogoutEndpoint:
     Description: Logout Endpoint
     Value: !Sub "https://${SubDomainName}.${DomainName}/logout"
-  AuthUrl:
+  CognitoUserPoolUrl:
     Description: Url used to authenticate
     Value: !GetAtt AuthStack.Outputs.AuthUrl
   ClientId:
