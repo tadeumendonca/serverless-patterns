@@ -76,13 +76,13 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref AppApi
-            Path: /
+            Path: /api
             Method: get
 
 Outputs:
   ApiEndpoint:
     Description: API Endpoint
-    Value: !Sub "https://${SubDomainName}.${DomainName}"
+    Value: !Sub "https://${SubDomainName}.${DomainName}/api"
   AuthUrl:
     Description: Url used to authenticate
     Value: !GetAtt AuthStack.Outputs.AuthUrl
