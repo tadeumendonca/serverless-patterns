@@ -34,8 +34,8 @@ Resources:
       Location: ./auth.yaml
       Parameters:
         CertificateArn: !Ref CertificateArn
-        AppDomainName: !Sub "https://${AppSubDomainName}.${DomainName}"
-        AuthDomainName: !Sub "https://auth.${DomainName}"
+        AppDomainName: !Sub "${AppSubDomainName}.${DomainName}"
+        AuthDomainName: !Sub "auth.${DomainName}"
         Postman: !Ref TestWithPostman
 
   # Creates an API Gateway HTTP API endpoint with JWT authorization
