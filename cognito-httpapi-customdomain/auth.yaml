@@ -45,7 +45,6 @@ Resources:
       GenerateSecret: false
       SupportedIdentityProviders:
         - COGNITO
-      DefaultRedirectURI: !Sub "${AppDomainName}/redirect_uri"
       CallbackURLs:
         - !Sub "https://${AppDomainName}/redirect_uri"
         - !If [UsePostman, https://oauth.pstmn.io/v1/callback, !Ref AWS::NoValue]
