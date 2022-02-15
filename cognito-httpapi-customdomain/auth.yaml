@@ -83,3 +83,7 @@ Outputs:
     TokenUrl:
       Description: "URL used for authentication"
       Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com/oauth2/token
+    
+    Issuer:
+      Description: "Url used for issuer on HTTP API JWT tokens"
+      Value: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
